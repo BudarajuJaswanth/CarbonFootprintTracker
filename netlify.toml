@@ -1,0 +1,4 @@
+[build]
+  base    = "antigravity1"
+  command = "npm install && npm run frontend:build"
+  publish = "dist"
