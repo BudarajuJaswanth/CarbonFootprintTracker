@@ -1,14 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, lazy, Suspense } from 'react';
 import { CalculatorForm } from '../components/CalculatorForm';
-import { GoalForm } from '../components/GoalForm';
+const GoalForm = lazy(() => import('../components/GoalForm'));
 import { UserInput, EmissionsBreakdown, Goal } from '../models/types';
+
+const API = (import.meta.env && (import.meta.env.VITE_API_BASE as string)) || '';
+
+const LoadingSpinner = () => <div className="muted" style={{ padding: '12px', textAlign: 'center' }}>Loading...</div>;
 
 export const App: React.FC = () => {
   const [breakdown, setBreakdown] = useState<EmissionsBreakdown | null>(null);
   const [goals, setGoals] = useState<Goal[]>([]);
 
   const handleSubmit = async (input: UserInput) => {
-    const res = await fetch('/api/calculate', {
+    const res = await fetch(`${API}/api/calculate`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input)
@@ -21,7 +25,7 @@ export const App: React.FC = () => {
 
   const fetchGoals = async (userId = 'user-1') => {
     try {
-      const res = await fetch(`/api/goals/${userId}`);
+      const res = await fetch(`${API}/api/goals/${userId}`);
       if (res.ok) {
         const data = await res.json();
         setGoals(data.goals || []);
@@ -78,7 +82,9 @@ export const App: React.FC = () => {
         <aside>
           <section>
             <h2 className="muted">Goals</h2>
-            <GoalForm onCreated={(g) => { setGoals((s) => [g, ...s]); }} />
+            <Suspense fallback={<LoadingSpinner />}>
+              <GoalForm onCreated={(g) => { setGoals((s) => [g, ...s]); }} />
+            </Suspense>
 
             <div className="card" style={{marginTop:12}}>
               <h3>Your goals</h3>
@@ -98,3 +104,5 @@ export const App: React.FC = () => {
     </main>
   );
 };
+
+export default App;

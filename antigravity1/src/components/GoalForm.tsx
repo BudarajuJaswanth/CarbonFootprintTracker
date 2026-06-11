@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Goal } from '../models/types';
 
+const API = (import.meta.env && (import.meta.env.VITE_API_BASE as string)) || '';
+
 interface Props {
   onCreated?: (goal: Goal) => void;
 }
@@ -17,7 +19,7 @@ export const GoalForm: React.FC<Props> = ({ onCreated }) => {
     setError(null);
     setLoading(true);
     try {
-      const res = await fetch('/api/goals', {
+      const res = await fetch(`${API}/api/goals`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId, title, targetPercentReduction: target })
@@ -57,3 +59,5 @@ export const GoalForm: React.FC<Props> = ({ onCreated }) => {
     </form>
   );
 };
+
+export default GoalForm;
